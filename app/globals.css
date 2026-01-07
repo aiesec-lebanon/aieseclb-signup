@@ -16,7 +16,7 @@ body {
   color: #222;
 }
 
-/* ========== NAVBAR (DESKTOP) ========== */
+/* ========== NAVBAR ========== */
 .navbar-wrapper {
   width: 100%;
   background: var(--blue);
@@ -43,7 +43,7 @@ body {
 
 .nav-link,
 .nav-btn {
-  color: white;
+  color: #fff;
   text-decoration: none;
   font-weight: 600;
   font-size: 16px;
@@ -58,11 +58,11 @@ body {
   transform: translateY(-2px);
 }
 
-/* ========== PAGE & HERO (DESKTOP) ========== */
+/* ========== PAGE & HERO ========== */
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 26px 36px;
+  padding: 26px 36px 40px;
   text-align: center;
 }
 
@@ -89,7 +89,7 @@ body {
   margin-bottom: 30px;
 }
 
-/* ========== PROGRAM CARDS (DESKTOP) ========== */
+/* ========== PROGRAM CARDS (DESKTOP BASE) ========== */
 .programs {
   display: flex;
   justify-content: center;
@@ -99,10 +99,10 @@ body {
 
 .program-card {
   width: 360px;
-  height: 420px; /* a bit less than before */
-  border-radius: 18px; /* sharper corners */
+  height: 420px;
+  border-radius: 18px;
   overflow: hidden;
-  background: white;
+  background: #fff;
   position: relative;
   cursor: pointer;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
@@ -122,7 +122,7 @@ body {
   filter: brightness(0.85);
 }
 
-/* GRADIENT OVERLAY (DESKTOP) */
+/* GRADIENT OVERLAY */
 .program-overlay {
   position: absolute;
   inset: 0;
@@ -147,26 +147,317 @@ body {
     linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 80%);
 }
 
-.program-label {
+/* ========== CARD TEXT AREA ========== */
+.program-content {
   position: absolute;
   left: 22px;
-  bottom: 18px;
-  color: white;
-  font-size: 18px;
-  font-weight: 700;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  right: 22px;
+  bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: left;
 }
 
-/* ========== TABLET ADJUSTMENTS ========== */
+.program-label {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.6);
+  margin-bottom: 2px;
+
+  /* push it a bit DOWN by default */
+  transform: translateY(90px);
+  transition: transform 0.25s ease, font-size 0.25s ease, font-weight 0.25s ease, opacity 0.25s ease;
+}
+
+/* If talent title was lower before (desktop fix) */
+.talent .program-label {
+  transform: translateY(70px);
+}
+
+/* Description – hidden initially */
+.program-desc {
+  margin-top: 4px;
+  color: #f9f9f9;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 280px;
+
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Buttons – hidden initially */
+.program-btn {
+  margin-top: 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s;
+}
+
+.program-btn:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Program-specific button colors */
+.volunteer .program-btn {
+  background: #f85a40;
+  border-color: #f85a40;
+}
+
+.teacher .program-btn {
+  background: #f48825;
+  border-color: #f48825;
+}
+
+.talent .program-btn {
+  background: #0cb9c0;
+  border-color: #0cb9c0;
+}
+
+/* DESKTOP ONLY: hide Learn more */
+@media (min-width: 601px) {
+  .learnmore-btn {
+    display: none !important;
+  }
+
+  /* Desktop hover behavior: hide title, show desc + buttons */
+  .program-card:hover .program-label {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  .program-card:hover .program-desc,
+  .program-card:hover .program-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== TABLET (≤ 1100px) ========== */
 @media (max-width: 1100px) {
   .programs {
     flex-wrap: wrap;
   }
 }
 
-/* ========== PHONE ADJUSTMENTS (≤ 600px) ========== */
+/* ---------- SIGNUP PAGES (BASE) ---------- */
+.signup-page {
+  background: #f3f3f3;
+  min-height: 100vh;
+}
+
+.signup-main {
+  max-width: 1100px;
+  margin: 32px auto 48px;
+  padding: 0 16px;
+}
+
+/* remove card look */
+.signup-card {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  padding: 0;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* left form | right image */
+  gap: 0;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+}
+
+/* left side full height */
+.signup-left {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* right side image container */
+.signup-right {
+  width: 100%;
+  height: 100%;
+  filter: brightness(0.95);
+}
+
+.signup-right img,
+.signup-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* colored bar on top */
+.signup-topbar {
+  height: 12px;
+  width: 100%;
+}
+
+/* theme colors */
+.volunteer-color {
+  background: #f85a40;
+}
+.teacher-color {
+  background: #f48825;
+}
+.talent-color {
+  background: #0cb9c0;
+}
+
+.signup-inner {
+  padding: 26px 32px 32px;
+}
+
+/* title + small logo */
+.signup-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.signup-program-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.signup-title {
+  font-size: 30px;
+  margin-bottom: 24px;
+}
+
+.signup-title .keyword {
+  font-weight: 800;
+  color: #f85a40;
+}
+
+.signup-title .keyword.teacher {
+  color: #f48825;
+}
+
+.signup-title .keyword.talent {
+  color: #0cb9c0;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.signup-form label:not(.signup-checkbox) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.signup-form input,
+.signup-form select {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.signup-form input:focus,
+.signup-form select:focus {
+  outline: none;
+  border-color: #037ef3;
+  box-shadow: 0 0 0 2px rgba(3, 126, 243, 0.25);
+}
+
+/* checkbox line */
+.signup-checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.signup-checkbox input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+
+.signup-checkbox a {
+  color: #037ef3;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.signup-checkbox a:hover {
+  opacity: 0.85;
+}
+
+/* signup submit button */
+.signup-submit {
+  width: 100%;
+  max-width: 230px;
+  padding: 12px 0;
+  margin-top: 20px;
+
+  border-radius: 999px;
+  border: none;
+
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #fff;
+
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.signup-submit:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.95);
+}
+
+.error-text {
+  color: #f85a40;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 700;
+}
+.success-text {
+  color: #0cb9c0;
+  font-size: 12px;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+/* ========== MOBILE (≤ 600px) ========== */
 @media (max-width: 600px) {
-  /* Smaller navbar */
+  /* Navbar smaller */
   .navbar-wrapper {
     padding: 10px 0;
   }
@@ -190,13 +481,12 @@ body {
     padding: 4px 8px;
   }
 
-  /* Page spacing */
+  /* hero smaller */
   .page {
     max-width: 100%;
     padding: 20px 16px 40px;
   }
 
-  /* Smaller title, fits in 2 lines */
   .hero-title {
     font-size: 28px;
     line-height: 1.25;
@@ -208,34 +498,328 @@ body {
     margin-bottom: 18px;
   }
 
-  /* Stack cards vertically */
+  /* cards column */
   .programs {
     flex-direction: column;
     align-items: center;
     gap: 14px;
   }
 
-  /* Smaller, sharper cards */
   .program-card {
     width: 100%;
     max-width: 360px;
-    height: 210px;   /* less height on phone */
-    border-radius: 14px; /* sharper */
+    height: 220px;
+    border-radius: 14px;
+    transition: height 0.3s ease; /* no transform to avoid shake */
   }
 
-  .program-image {
-    filter: brightness(1);
+  /* disable hover behavior on mobile */
+  .program-card:hover {
+    transform: none !important;
+    height: 220px !important;
+    box-shadow: inherit !important;
   }
 
+  /* move content up and keep left */
+  .program-content {
+    left: 16px;
+    right: 16px;
+    bottom: 18px;
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  /* title + buttons row */
+  .program-toprow {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+  }
+
+  /* title visible + no push-down */
   .program-label {
-    bottom: 14px;
-    left: 14px;
-    font-size: 15px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    transform: none !important;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    opacity: 1 !important;
   }
 
-  /* Remove gradients on phone */
+  /* Talent: ensure visible + wrap */
+  .talent .program-label {
+    transform: none !important;
+    white-space: normal;
+    line-height: 1.1;
+  }
+
+  /* show buttons always */
+  .program-btn {
+    opacity: 1 !important;
+    transform: none !important;
+    position: static !important;
+    pointer-events: auto !important;
+    z-index: 5;
+    white-space: nowrap;
+  }
+
+  /* push Learn more to the far right */
+  .learnmore-btn {
+    display: inline-flex;
+  }
+
+  /* hide description until open */
+  .program-desc {
+    display: none;
+    margin-top: 8px;
+    opacity: 1;            /* handled by display */
+    transform: none;
+  }
+
+  /* no overlay by default */
   .program-overlay {
     background: none !important;
   }
+
+  /* open state (via .is-open from JS) */
+  .program-card.is-open {
+    height: 340px;
+  }
+
+  .program-card.is-open .program-desc {
+    display: block;
+  }
+
+  .program-card.is-open .program-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.55) 35%,
+      rgba(0, 0, 0, 0) 75%
+    ) !important;
+  }
+
+  /* Learn more visible on mobile */
+  .learnmore-btn {
+    display: inline-flex;
+  }
+
+  /* signup pages: hide image */
+  .signup-right {
+    display: none !important;
+  }
+
+  .signup-card {
+    grid-template-columns: 1fr !important;
+    max-width: 520px;
+    margin: 24px auto;
+  }
+
+  /* blurred background using --signup-bg */
+  .signup-page {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .signup-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: var(--signup-bg);
+    background-size: cover;
+    background-position: center;
+    filter: blur(12px);
+    transform: scale(1.08);
+    z-index: 0;
+  }
+
+  .signup-page::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+  }
+
+  .signup-page > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* glass panel for form */
+  .signup-left {
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* labels white */
+  .signup-form label {
+    color: #ffffff;
+  }
+
+  .signup-checkbox span {
+    color: #ffffff;
+  }
+
+  .signup-checkbox a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  /* inputs readable */
+  .signup-form input,
+  .signup-form select {
+    color: #222;
+    background: #ffffff;
+  }
+
+  .signup-form input::placeholder {
+    color: #999;
+  }
+
+  /* abroad word white (only if you wrap it in a span abroad-word) */
+  .signup-title .abroad-word {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  /* phone row inline */
+  .phone-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+  }
+
+  .phone-row select {
+    width: 95px;
+    min-width: 95px;
+    flex: 0 0 95px;
+    padding: 10px 8px;
+  }
+
+  .phone-row input {
+    flex: 1;
+    width: 100%;
+    padding: 10px 10px;
+  }
+
+
+  /* Make the top row behave nicely */
+  .program-toprow{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+    flex-wrap: wrap;              /* allows wrapping if needed */
+  }
+
+  
 }
+
+/* ===== DESKTOP ONLY: adjust Global Teacher TITLE ===== */
+@media (min-width: 601px) {
+  .program-card.teacher .program-label {
+    transform: translateY(110px); /* ↓ lower | use smaller to raise */
+  }
+}
+
+/* ===== CONSISTENT LAYOUT: STACKED (ALL CARDS) ===== */
+.program-content {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.program-toprow {
+  display: flex;
+  flex-direction: column;   /* 👈 stacked */
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+/* keep buttons same width like real buttons */
+.program-toprow .program-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+}
+
+@media (max-width: 600px) {
+  /* Base card size */
+  .program-card {
+    width: 100%;
+    max-width: 360px;
+    height: 220px;
+    border-radius: 14px;
+    transition: height 0.25s ease; /* only height, no scale = no shaking */
+  }
+
+  /* IMPORTANT: disable hover expansion on mobile (prevents multi-open “sticky hover”) */
+  .program-card:hover {
+    height: 220px !important;
+    transform: none !important;
+    box-shadow: inherit !important;
+  }
+
+  /* Expand ONLY when React adds .is-open */
+  .program-card.is-open {
+    height: 340px !important; /* applies to volunteer/teacher/talent */
+  }
+
+  /* Hide/show description ONLY with .is-open */
+  .program-desc {
+    display: none;
+  }
+  .program-card.is-open .program-desc {
+    display: block;
+    margin-top: 10px;
+  }
+
+  /* Gradient only when open */
+  .program-overlay {
+    background: none !important;
+  }
+  .program-card.is-open .program-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.55) 35%,
+      rgba(0, 0, 0, 0) 75%
+    ) !important;
+  }
+
+  /* Buttons always visible on mobile */
+  .program-btn {
+    opacity: 1 !important;
+    transform: none !important;
+    position: static !important;
+    pointer-events: auto !important;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Keep program titles on one line by default */
+  .program-label {
+    white-space: nowrap;
+  }
+
+  /* Specifically ensure TALENT never wraps */
+  .talent .program-label {
+    max-width: none !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hide the TITLE once Learn more is opened */
+  .program-card.is-open .program-label {
+    display: none !important;
+  }
+}
+
