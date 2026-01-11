@@ -17,7 +17,49 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+
+      {/* 👇 Default theme color */}
+      <body>
+        {/* NAVBAR */}
+        <div
+          className="navbar-wrapper"
+          style={{ backgroundColor: "var(--theme-color)" }}
+        >
+          <header className="navbar">
+            <img
+              alt="AIESEC logo"
+              className="logo"
+            />
+
+            <nav className="nav-right">
+              <a
+                className="nav-link"
+                href="https://aieseclb.org"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Home
+              </a>
+
+              <a
+                className="nav-link"
+                href="https://partners.aieseclb.org"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Partners
+              </a>
+
+              <a className="nav-btn" href="/">
+                Sign up
+              </a>
+            </nav>
+          </header>
+        </div>
+
+        {/* PAGE CONTENT */}
+        {children}
+      </body>
     </html>
   );
 }

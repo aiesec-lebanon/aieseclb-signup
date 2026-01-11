@@ -12,19 +12,6 @@ export default function Home() {
 
   return (
     <>
-      {/* NAVBAR */}
-      <div className="navbar-wrapper">
-        <header className="navbar">
-          <img src="/images/aiesec logo.PNG" alt="AIESEC logo" className="logo" />
-          <nav className="nav-right">
-            <a className="nav-link" href="#home">Home</a>
-            <a className="nav-link" href="#partners">Partners</a>
-            <a className="nav-btn" href="/signup">Sign up</a>
-          </nav>
-        </header>
-      </div>
-
-      {/* PAGE CONTENT */}
       <div className="page">
         <h1 className="hero-title">
           <span className="c1">Ready to</span>{" "}
