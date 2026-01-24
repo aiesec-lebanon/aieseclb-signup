@@ -4,6 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import "./SignupForm.css";
 import User from "../types/userType";
+import { useRouter } from "next/navigation";
 
 type SignupFormProps = {
   role: "volunteer" | "teacher" | "talent";
@@ -44,7 +45,7 @@ const initialValues: User = {
   lc: 0,
   lc_input: 0,
   referral_type: "",
-  alignment_id: "",
+  alignment_id: 0,
   allow_phone_communication: 0,
   allow_email_communication: 1,
   allow_term_and_conditions: 0,
@@ -76,8 +77,9 @@ export default function SignupForm({
   const [formData, setFormData] = useState<User>({ ...initialValues,
     selected_programs: [producTIds[role]]
   });
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const API_ENDPOINT = process.env.NEXT_PUBLIC_GIS_API || "";
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -153,9 +155,10 @@ export default function SignupForm({
   }
 
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // 1. Password validation
     const passwordValidation = validatePassword(password);
 
     if (!passwordValidation.isValid) {
@@ -170,9 +173,40 @@ export default function SignupForm({
     }
 
     setError("");
-    console.log("Form Data:", formData);
-    console.log(`${role} signup successful`);
+    setIsSubmitting(true);
+
+    try {
+      const res = await axios.post("/api/register", {
+        user: {
+          ...formData,
+          password
+        }
+      });
+
+      // 1. Clear form
+      setFormData(initialValues);
+      setPassword("");
+      setConfirmPassword("");
+      setPasswordErrors([]);
+      setPasswordTouched(false);
+
+      router.push("/signup/success");
+
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        setError(
+          err.response?.data?.details ||
+          err.response?.data?.error ||
+          "Signup failed"
+        );
+      } else {
+        setError("Unexpected error occurred");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
 
   return (
@@ -319,7 +353,7 @@ export default function SignupForm({
 
                       setFormData((prev) => ({
                         ...prev,
-                        alignment_id: selectedOption.dataset.alignmentId!,
+                        alignment_id: Number(selectedOption.dataset.alignmentId!),
                         lc: Number(selectedOption.dataset.lc),
                         lc_input: Number(selectedOption.dataset.lc),
                       }));
@@ -415,9 +449,10 @@ export default function SignupForm({
                 <button
                   type="submit"
                   className="signup-submit"
+                  disabled={isSubmitting}
                   style={{ backgroundColor: themeColor }}
                 >
-                  SIGN UP
+                  {isSubmitting ? "Submitting..." : "SIGN UP"}
                 </button>
               </form>
             </div>
