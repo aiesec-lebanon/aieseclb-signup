@@ -9,7 +9,7 @@ export default interface User {
     lc: number;
     lc_input: number;
     referral_type: string;
-    alignment_id: string;
+    alignment_id: number;
     allow_phone_communication: number;
     allow_email_communication: number;
     allow_term_and_conditions: number;
