@@ -2,11 +2,13 @@
 'use server';
 
 import axios from "axios";
-import User from "@/app/types/userType";
+import { AdditionalUser, User } from "@/app/types/userType";
 import { getGoogleAccessToken } from "./googleAuth";
+import { LCMap, AllignmentMap } from "../constants/offices";
 
 export async function updateGoogleSheet(
   user: User,
+  additional: AdditionalUser,
   personId: number
 ) {
   const accessToken = await getGoogleAccessToken();
@@ -15,41 +17,31 @@ export async function updateGoogleSheet(
   const phone = `'${user.country_code}${user.phone}`;
   const timestamp = new Date().toISOString();
   const selectedPrograms = user.selected_programs.join(",");
-
-  const AllignmentMap: { [key: number]: string } = {
-    3032: "Lebanese American University (Beirut)",
-    40211: "Lebanese American University (Byblos)",
-    40212: "American University of Beirut",
-    40213: "Other",
-    // Add more mappings as needed
-  };
-
-  const LCMap: { [key: number]: string } = {
-    6550: "AUB (EXP)",
-    5853: "Haigazian (EXP CLOSED)",
-    5854: "LAU Beirut (EXP)",
-    6547: "LAU Byblos (EXP)",
-    1735: "MC Lebanon",
-    6549: "USJ (EXP CLOSED)"
-    // Add more mappings as needed
-  };
+  const languages = additional.languages.join(",");
+  const nationalities = additional.nationality.join(",");
 
   const row = [
     timestamp,
     personId,
     fullName,
+    additional.dob,
     user.email,
     phone,
+    nationalities,
+    languages,
     user.lc,
     LCMap[user.lc] || "",
     user.alignment_id,
     AllignmentMap[user.alignment_id] || "",
+    additional.major,
+    additional.education,
     selectedPrograms,
     user.referral_type,
+    additional.referee
   ];
 
   await axios.post(
-    `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/Sheet1!A:I:append`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/Sheet1!A:Q:append`,
     {
       values: [row],
     },
