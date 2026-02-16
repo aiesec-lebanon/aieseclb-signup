@@ -1,4 +1,4 @@
-export default interface User {
+export interface User {
     first_name: string;
     last_name: string;
     email: string;
@@ -14,4 +14,18 @@ export default interface User {
     allow_email_communication: number;
     allow_term_and_conditions: number;
     selected_programs: number[];
+}
+
+export interface AdditionalUser {
+    dob: String;
+    nationality: String[];
+    languages: String[];
+    education: String;
+    major: String;
+    referee: String;
+}
+
+export default interface UserRequest {
+    user: User;
+    additional: AdditionalUser;
 }
