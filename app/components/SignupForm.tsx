@@ -3,8 +3,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./SignupForm.css";
-import User from "../types/userType";
+import { User, AdditionalUser } from "../types/userType";
 import { useRouter } from "next/navigation";
+import Select, {GroupBase, MultiValue, SingleValue} from "react-select";
+import { nationalityOptions } from "../constants/nationalities";
+import { languageOptions } from "../constants/languages";
+import { Option } from "../types/otherTypes";
+import { educationLevelOptions } from "../constants/educationLevel";
+import { majorOptions } from "../constants/majors";
 
 type SignupFormProps = {
   role: "volunteer" | "teacher" | "talent";
@@ -52,6 +58,15 @@ const initialValues: User = {
   selected_programs: [],
 };
 
+const initialAdditionals: AdditionalUser = {
+  dob: "",
+  nationality: ["Lebanese"],
+  languages: [],
+  education: "",
+  major: "",
+  referee: "",
+}
+
 const producTIds = {
   "volunteer": 7,
   "teacher": 8,
@@ -77,6 +92,7 @@ export default function SignupForm({
   const [formData, setFormData] = useState<User>({ ...initialValues,
     selected_programs: [producTIds[role]]
   });
+  const [additionalData, setAdditionalData] = useState<AdditionalUser>(initialAdditionals)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_ENDPOINT = process.env.NEXT_PUBLIC_GIS_API || "";
   const router = useRouter();
@@ -132,6 +148,21 @@ export default function SignupForm({
       setFormData({ ...formData, [field]: e.target.value });
   };
 
+  const updateAdditional = (field: keyof AdditionalUser) =>
+    (e: SingleValue<Option>) => {
+      setAdditionalData({...additionalData, [field]: e?.value });
+  };
+
+  const handleNationalityChange = (selected: MultiValue<Option>) => {
+    const values = selected.map(o => o.value);
+    setAdditionalData({...additionalData, nationality: values});
+  };
+
+  const handleLanguageChange = (selected: readonly Option[] | null) => {
+    const values = selected ? selected.map(o => o.value) : [];
+    setAdditionalData({...additionalData, languages: values});
+  };
+
   function validatePassword(password: string): PasswordValidation {
     const errors: string[] = [];
 
@@ -180,11 +211,13 @@ export default function SignupForm({
         user: {
           ...formData,
           password
-        }
+        },
+        additional: additionalData
       });
 
       // 1. Clear form
       setFormData(initialValues);
+      setAdditionalData(initialAdditionals);
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
@@ -339,8 +372,38 @@ export default function SignupForm({
                       onChange={updateField("phone")}
                     />
                   </div>
+                </label>              
+
+                <label>
+                  Date of Birth
+                  <input 
+                    name="dob" 
+                    type="date" 
+                    required
+                    onChange={(e) => {
+                      setAdditionalData({ ...additionalData, dob: e.target.value })
+                    }}
+                  />
                 </label>
 
+                <label>
+                  Nationality
+                  <Select<Option, true, GroupBase<Option>>
+                    isMulti
+                    options={nationalityOptions}
+                    onChange={handleNationalityChange}
+                    placeholder="Select your nationalities"
+                  />
+                </label>
+                
+                <label>
+                  What languages do you speak?
+                  <Select
+                    isMulti
+                    options={languageOptions}
+                    onChange={handleLanguageChange}
+                  />
+                </label>
 
                 <label>
                   University / Institute
@@ -382,7 +445,21 @@ export default function SignupForm({
                   )}
                 </label>
 
+                <label>
+                  Level of Education
+                  <Select<Option, false>
+                    options={educationLevelOptions}
+                    onChange={updateAdditional("education")}
+                  />
+                </label>
 
+                <label>
+                  Major
+                  <Select<Option, false, GroupBase<Option>>
+                    options={majorOptions}
+                    onChange={updateAdditional("major")}
+                  />
+                </label>
 
                 <label>
                   Where did you first hear about us?
@@ -414,6 +491,17 @@ export default function SignupForm({
                     <option>WhatsApp</option>
                     <option>Other</option>
                   </select>
+                </label>
+
+                <label>
+                  Were you referred by someone? If yes please mention their full name.
+                  <input 
+                    name="referee" 
+                    type="text" 
+                    onChange={(e) => {
+                      setAdditionalData({ ...additionalData, referee: e.target.value})
+                    }}
+                  />
                 </label>
 
                 <label className="signup-checkbox">

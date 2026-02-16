@@ -3,8 +3,13 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AIESEC – Opportunities Abroad",
+  title: "AIESEC in Lebanon",
   description: "Explore AIESEC opportunities abroad",
+  icons: {
+    icon: "/aiesec_man.png",
+    shortcut: "/aiesec_man.png",
+    apple: "/aiesec_man.png",
+  }
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

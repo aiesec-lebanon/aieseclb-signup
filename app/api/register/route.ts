@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios, { AxiosError } from "axios";
-import User from "@/app/types/userType";
+import UserRequest, { User, AdditionalUser } from "@/app/types/userType";
 import RegisterAPIError from "@/app/utils/RegisterAPIError";
 import { updateGoogleSheet } from "@/app/utils/updateGoogleSheet";
+import { randomInt } from "crypto";
 
 interface ExpaSignupResponse {
     person_id: number;
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const userInfo: User = body.user;
+    const additionalInfo: AdditionalUser = body.additional
 
     if (!userInfo) {
       return NextResponse.json(
@@ -26,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Update Google Sheet (non-blocking option)
     try {
-      await updateGoogleSheet(userInfo, expaRes.person_id);
+      await updateGoogleSheet(userInfo, additionalInfo, expaRes.person_id);
     } catch (sheetErr) {
       console.error("Google Sheet update failed:", sheetErr);
       // intentionally NOT failing the request
