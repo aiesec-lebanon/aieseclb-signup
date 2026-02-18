@@ -11,6 +11,8 @@ import { languageOptions } from "../constants/languages";
 import { Option } from "../types/otherTypes";
 import { educationLevelOptions } from "../constants/educationLevel";
 import { majorOptions } from "../constants/majors";
+import CreatableSelect from "react-select/creatable";
+import { selectStyles } from "../styles/selectStyles";
 
 type SignupFormProps = {
   role: "volunteer" | "teacher" | "talent";
@@ -390,9 +392,10 @@ export default function SignupForm({
                   Nationality
                   <Select<Option, true, GroupBase<Option>>
                     isMulti
+                    styles={selectStyles}
                     options={nationalityOptions}
                     onChange={handleNationalityChange}
-                    placeholder="Select your nationalities"
+                    placeholder="Select your nationalities."
                   />
                 </label>
                 
@@ -400,7 +403,9 @@ export default function SignupForm({
                   What languages do you speak?
                   <Select
                     isMulti
+                    styles={selectStyles}
                     options={languageOptions}
+                    placeholder="Select the languages."
                     onChange={handleLanguageChange}
                   />
                 </label>
@@ -448,16 +453,25 @@ export default function SignupForm({
                 <label>
                   Level of Education
                   <Select<Option, false>
+                    styles={selectStyles}
                     options={educationLevelOptions}
+                    placeholder="Select your level of education."
                     onChange={updateAdditional("education")}
+                    isClearable
                   />
                 </label>
 
                 <label>
                   Major
-                  <Select<Option, false, GroupBase<Option>>
+                  <CreatableSelect<Option, false, GroupBase<Option>>
+                    styles={selectStyles}
                     options={majorOptions}
                     onChange={updateAdditional("major")}
+                    placeholder="Select or type your major."
+                    isClearable
+                    formatCreateLabel={(inputValue) =>
+                      `Add "${inputValue}" as a custom major`
+                    }
                   />
                 </label>
 

@@ -10,6 +10,7 @@
   --white: #ffffff;
   --theme-color: #037ef3;
   --navbar-logo: url("/images/aiesec logo.PNG");
+  color-scheme: light;
 }
 
 body {
