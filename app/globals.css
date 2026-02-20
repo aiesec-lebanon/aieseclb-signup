@@ -17,6 +17,7 @@ body {
   font-family: "Lato", sans-serif;
   background-color: #ffffff;
   color: #222;
+  height: 100vh;
 }
 
 /* ========== NAVBAR ========== */
@@ -275,7 +276,9 @@ body {
 @media (max-width: 600px) {
   /* Navbar smaller */
   .navbar-wrapper {
+    position: relative;
     padding: 10px 0;
+    z-index: 10;
   }
 
   .navbar {
@@ -435,6 +438,7 @@ body {
   .signup-page {
     position: relative;
     overflow: hidden;
+    z-index: 1;
   }
 
   .signup-page::before {
@@ -446,7 +450,7 @@ body {
     background-position: center;
     filter: blur(12px);
     transform: scale(1.08);
-    z-index: 0;
+    z-index: -1;
   }
 
   .signup-page::after {

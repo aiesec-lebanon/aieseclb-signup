@@ -13,6 +13,7 @@ import { educationLevelOptions } from "../constants/educationLevel";
 import { majorOptions } from "../constants/majors";
 import CreatableSelect from "react-select/creatable";
 import { selectStyles } from "../styles/selectStyles";
+import toast from "react-hot-toast";
 
 type SignupFormProps = {
   role: "volunteer" | "teacher" | "talent";
@@ -144,6 +145,12 @@ export default function SignupForm({
     };
   }, [themeColor, logoSrc]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error])
+
 
   const updateField = (field: keyof User) => 
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,8 +237,8 @@ export default function SignupForm({
     } catch (err: any) {
       if (axios.isAxiosError(err)) {
         setError(
-          err.response?.data?.details ||
           err.response?.data?.error ||
+          err.response?.data?.details ||
           "Signup failed"
         );
       } else {
@@ -339,8 +346,6 @@ export default function SignupForm({
                     }}
                   />
                 </label>
-
-                {error && <p className="error-text">{error}</p>}
 
                 <label>
                   Phone Number
@@ -547,6 +552,8 @@ export default function SignupForm({
                     .
                   </span>
                 </label>
+
+                {error && <p className="error-text">{error}</p>}
 
                 <button
                   type="submit"
