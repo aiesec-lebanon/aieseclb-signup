@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "AIESEC in Lebanon",
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         {/* PAGE CONTENT */}
         {children}
+        <Toaster position="top-center" />
       </body>
     </html>
   );
