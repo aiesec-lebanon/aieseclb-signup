@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { entityConfig } from "./config/entity";
 
 export const metadata: Metadata = {
-  title: "AIESEC in Lebanon",
-  description: "Explore AIESEC opportunities abroad",
+  title: entityConfig.metadata.title,
+  description: entityConfig.metadata.description,
   icons: {
     icon: "/aiesec_man.png",
     shortcut: "/aiesec_man.png",
@@ -24,23 +26,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
 
-      {/* 👇 Default theme color */}
       <body>
-        {/* NAVBAR */}
         <div
           className="navbar-wrapper"
           style={{ backgroundColor: "var(--theme-color)" }}
         >
           <header className="navbar">
             <img
-              alt="AIESEC logo"
+              alt={`${entityConfig.organizationName} logo`}
               className="logo"
             />
 
             <nav className="nav-right">
               <a
                 className="nav-link"
-                href="https://aieseclb.org"
+                href={entityConfig.navLinks.home}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -49,21 +49,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
               <a
                 className="nav-link"
-                href="https://partners.aieseclb.org"
+                href={entityConfig.navLinks.partners}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Partners
               </a>
 
-              <a className="nav-btn" href="/">
+              <Link className="nav-btn" href="/">
                 Sign up
-              </a>
+              </Link>
             </nav>
           </header>
         </div>
 
-        {/* PAGE CONTENT */}
         {children}
         <Toaster position="top-center" />
       </body>
