@@ -17,12 +17,12 @@ export interface User {
 }
 
 export interface AdditionalUser {
-    dob: String;
-    nationality: String[];
-    languages: String[];
-    education: String;
-    major: String;
-    referee: String;
+    dob: string;
+    nationality: string[];
+    languages: string[];
+    education: string;
+    major: string;
+    referee: string;
 }
 
 export default interface UserRequest {
