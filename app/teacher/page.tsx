@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import SignupForm from "../components/SignupForm";
 
 export default function TeacherSignup() {
