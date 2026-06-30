@@ -5,6 +5,7 @@ import axios from "axios";
 import { AdditionalUser, User } from "@/app/types/userType";
 import { getGoogleAccessToken } from "./googleAuth";
 import { LCMap, AllignmentMap } from "../constants/offices";
+import { entityConfig } from "../config/entity";
 
 export async function updateGoogleSheet(
   user: User,
@@ -41,7 +42,7 @@ export async function updateGoogleSheet(
   ];
 
   await axios.post(
-    `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/Sheet1!A:Q:append`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/${encodeURIComponent(entityConfig.googleSheet.appendRange)}:append`,
     {
       values: [row],
     },

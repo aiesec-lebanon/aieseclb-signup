@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import "./SignupForm.css";
 import { User, AdditionalUser } from "../types/userType";
 import { useRouter } from "next/navigation";
@@ -14,9 +15,11 @@ import { majorOptions } from "../constants/majors";
 import CreatableSelect from "react-select/creatable";
 import { selectStyles } from "../styles/selectStyles";
 import toast from "react-hot-toast";
+import { entityConfig } from "../config/entity";
+import type { ProgramRole } from "../config/entity";
 
 type SignupFormProps = {
-  role: "volunteer" | "teacher" | "talent";
+  role: ProgramRole;
   titleKeyword: string;
   titleSuffix: string;
   themeColor: string;
@@ -43,14 +46,14 @@ type AllignementResponse = {
   alignments: Allignements[];
 };
 
-const initialValues: User = {
+const createInitialValues = (role: ProgramRole): User => ({
   first_name: "",
   last_name: "",
   email: "",
-  country_code: "+961",
+  country_code: entityConfig.defaultPhoneCode,
   phone: "",
   password: "",
-  country: 182,
+  country: entityConfig.expaCountryId,
   lc: 0,
   lc_input: 0,
   referral_type: "",
@@ -58,23 +61,17 @@ const initialValues: User = {
   allow_phone_communication: 0,
   allow_email_communication: 1,
   allow_term_and_conditions: 0,
-  selected_programs: [],
-};
+  selected_programs: [entityConfig.productIds[role]],
+});
 
-const initialAdditionals: AdditionalUser = {
+const createInitialAdditionals = (): AdditionalUser => ({
   dob: "",
-  nationality: ["Lebanese"],
+  nationality: [...entityConfig.defaultNationalities],
   languages: [],
   education: "",
   major: "",
   referee: "",
-}
-
-const producTIds = {
-  "volunteer": 7,
-  "teacher": 8,
-  "talent": 9,
-}
+});
 
 export default function SignupForm({
   role,
@@ -92,10 +89,8 @@ export default function SignupForm({
   const [universities, setUniversities] = useState<Allignements[]>([]);
   const [loadingUniversities, setLoadingUniversities] = useState(true);
   const [universityError, setUniversityError] = useState("");
-  const [formData, setFormData] = useState<User>({ ...initialValues,
-    selected_programs: [producTIds[role]]
-  });
-  const [additionalData, setAdditionalData] = useState<AdditionalUser>(initialAdditionals)
+  const [formData, setFormData] = useState<User>(() => createInitialValues(role));
+  const [additionalData, setAdditionalData] = useState<AdditionalUser>(() => createInitialAdditionals());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_ENDPOINT = process.env.NEXT_PUBLIC_GIS_API || "";
   const router = useRouter();
@@ -105,7 +100,7 @@ export default function SignupForm({
       try {
         const response = await axios.get<AllignementResponse[]>(`${API_ENDPOINT}/v2/lists/mcs_alignments`, {
           params: {
-            mc_name: "Lebanon",
+            mc_name: entityConfig.gisMcName,
           }
         });
 
@@ -122,7 +117,7 @@ export default function SignupForm({
     };
 
     fetchUniversities();
-  }, []);
+  }, [API_ENDPOINT]);
 
   useEffect(() => {
     // clear body override if exists
@@ -216,7 +211,7 @@ export default function SignupForm({
     setIsSubmitting(true);
 
     try {
-      const res = await axios.post("/api/register", {
+      await axios.post("/api/register", {
         user: {
           ...formData,
           password
@@ -225,8 +220,8 @@ export default function SignupForm({
       });
 
       // 1. Clear form
-      setFormData(initialValues);
-      setAdditionalData(initialAdditionals);
+      setFormData(createInitialValues(role));
+      setAdditionalData(createInitialAdditionals());
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
@@ -234,8 +229,8 @@ export default function SignupForm({
 
       router.push("/signup/success");
 
-    } catch (err: any) {
-      if (axios.isAxiosError(err)) {
+    } catch (err: unknown) {
+      if (axios.isAxiosError<{ error?: string; details?: string }>(err)) {
         setError(
           err.response?.data?.error ||
           err.response?.data?.details ||
@@ -254,7 +249,7 @@ export default function SignupForm({
   return (
     <div
       className="signup-page"
-      style={{ ["--signup-bg" as any]: `url('${bgImage}')`}}
+      style={{ "--signup-bg": `url('${bgImage}')` } as CSSProperties}
     >
       <main className="signup-main">
         <div className="signup-card">
@@ -350,31 +345,22 @@ export default function SignupForm({
                 <label>
                   Phone Number
                   <div className="phone-row">
-                    <select name="phoneCode" defaultValue="+961" required 
+                    <select name="phoneCode" defaultValue={entityConfig.defaultPhoneCode} required
                     onChange={(e) => {
                       setFormData({ ...formData, country_code: e.target.value })
                     }}>
-                      <option value="+961">+961 (Lebanon)</option>
-                      <option value="+1">+1 (USA/Canada)</option>
-                      <option value="+33">+33 (France)</option>
-                      <option value="+44">+44 (UK)</option>
-                      <option value="+49">+49 (Germany)</option>
-                      <option value="+61">+61 (Australia)</option>
-                      <option value="+90">+90 (Turkey)</option>
-                      <option value="+971">+971 (UAE)</option>
-                      <option value="+966">+966 (Saudi Arabia)</option>
-                      <option value="+20">+20 (Egypt)</option>
-                      <option value="+962">+962 (Jordan)</option>
-                      <option value="+963">+963 (Syria)</option>
-                      <option value="+98">+98 (Iran)</option>
-                      <option value="+7">+7 (Russia/Kazakhstan)</option>
+                      {entityConfig.phoneCodes.map((phoneCode) => (
+                        <option key={phoneCode.value} value={phoneCode.value}>
+                          {phoneCode.label}
+                        </option>
+                      ))}
                       <option value="other">Other…</option>
                     </select>
 
                     <input
                       name="phoneNumber"
                       type="tel"
-                      placeholder="03 123 456"
+                      placeholder={entityConfig.defaultPhonePlaceholder}
                       required
                       onChange={updateField("phone")}
                     />
@@ -543,7 +529,7 @@ export default function SignupForm({
                   <span>
                     By signing up, I agree to the{" "}
                     <a
-                      href="https://aiesec.org/assets/documents/AIESEC_Privacy_Policy2022.pdf"
+                      href={entityConfig.privacyPolicyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
