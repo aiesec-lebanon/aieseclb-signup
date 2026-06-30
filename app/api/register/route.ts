@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
-import UserRequest, { User, AdditionalUser } from "@/app/types/userType";
+import axios from "axios";
+import { User, AdditionalUser } from "@/app/types/userType";
 import RegisterAPIError from "@/app/utils/RegisterAPIError";
 import { updateGoogleSheet } from "@/app/utils/updateGoogleSheet";
-import { randomInt } from "crypto";
 
 interface ExpaSignupResponse {
     person_id: number;
 }
 
+type ExpaErrorResponse = {
+  error?: string;
+  errors?: {
+    email?: string[];
+  };
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,7 +43,7 @@ export async function POST(req: NextRequest) {
       { person_id: expaRes.person_id },
       { status: 201 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof RegisterAPIError) {
       return NextResponse.json(
         { error: err.message, details: err.details },
@@ -68,14 +73,14 @@ async function ExpaSignup(userInfo: User): Promise<ExpaSignupResponse> {
         } else {
             throw new RegisterAPIError("Error creating signup on expa", response.status, "Error has occured");
         }
-    } catch (err: any) {
-        if (err instanceof AxiosError && err.status == 422) {
-            throw new RegisterAPIError("Error creating signup on expa", 422, err.response?.data?.errors?.email?.[0])
+    } catch (err: unknown) {
+        if (axios.isAxiosError<ExpaErrorResponse>(err) && err.response?.status == 422) {
+            throw new RegisterAPIError("Error creating signup on expa", 422, err.response.data?.errors?.email?.[0])
         }
         throw new RegisterAPIError(
             "Error creating signup on expa",
-            err.status || 500,
-            err instanceof AxiosError ? err.response?.data?.error || err.message : String(err)
+            axios.isAxiosError(err) ? err.response?.status || 500 : 500,
+            axios.isAxiosError<ExpaErrorResponse>(err) ? err.response?.data?.error || err.message : err instanceof Error ? err.message : String(err)
         )
     }
 }
