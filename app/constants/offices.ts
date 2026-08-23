@@ -1,10 +1,12 @@
 // Replace these mappings with your entity's own EXPA/GIS alignment and LC IDs.
 // They are used to add readable labels to the Google Sheet export.
+export const OTHER_ALIGNMENT_ID = 40213;
+
 export const AllignmentMap: { [key: number]: string } = {
     3032: "Lebanese American University (Beirut)",
     40211: "Lebanese American University (Byblos)",
     40212: "American University of Beirut",
-    40213: "Other",
+    [OTHER_ALIGNMENT_ID]: "Other",
     // Add more mappings as needed
 };
 

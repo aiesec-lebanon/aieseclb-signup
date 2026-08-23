@@ -17,6 +17,7 @@ import { selectStyles } from "../styles/selectStyles";
 import toast from "react-hot-toast";
 import { entityConfig } from "../config/entity";
 import type { ProgramRole } from "../config/entity";
+import { OTHER_ALIGNMENT_ID } from "../constants/offices";
 
 type SignupFormProps = {
   role: ProgramRole;
@@ -71,6 +72,7 @@ const createInitialAdditionals = (): AdditionalUser => ({
   education: "",
   major: "",
   referee: "",
+  other_university: "",
 });
 
 export default function SignupForm({
@@ -89,6 +91,7 @@ export default function SignupForm({
   const [universities, setUniversities] = useState<Allignements[]>([]);
   const [loadingUniversities, setLoadingUniversities] = useState(true);
   const [universityError, setUniversityError] = useState("");
+  const [isOtherUniversity, setIsOtherUniversity] = useState(false);
   const [formData, setFormData] = useState<User>(() => createInitialValues(role));
   const [additionalData, setAdditionalData] = useState<AdditionalUser>(() => createInitialAdditionals());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -222,6 +225,7 @@ export default function SignupForm({
       // 1. Clear form
       setFormData(createInitialValues(role));
       setAdditionalData(createInitialAdditionals());
+      setIsOtherUniversity(false);
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
@@ -409,10 +413,14 @@ export default function SignupForm({
                     disabled={loadingUniversities}
                     onChange={(e) => {
                       const selectedOption = e.target.selectedOptions[0];
+                      const alignmentId = Number(selectedOption.dataset.alignmentId!);
+
+                      setIsOtherUniversity(alignmentId === OTHER_ALIGNMENT_ID);
+                      setAdditionalData((prev) => ({ ...prev, other_university: "" }));
 
                       setFormData((prev) => ({
                         ...prev,
-                        alignment_id: Number(selectedOption.dataset.alignmentId!),
+                        alignment_id: alignmentId,
                         lc: Number(selectedOption.dataset.lc),
                         lc_input: Number(selectedOption.dataset.lc),
                       }));
@@ -438,6 +446,19 @@ export default function SignupForm({
 
                   {universityError && (
                     <p className="error-text">{universityError}</p>
+                  )}
+
+                  {isOtherUniversity && (
+                    <input
+                      name="otherUniversity"
+                      type="text"
+                      required
+                      placeholder="Enter your university name"
+                      value={additionalData.other_university}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_university: e.target.value }));
+                      }}
+                    />
                   )}
                 </label>
 

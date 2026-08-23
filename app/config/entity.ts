@@ -29,6 +29,12 @@ export const entityConfig = {
     appendRange: "Sheet1!A:Q",
   },
 
+  programNames: {
+    7: "GV",
+    8: "GTe",
+    9: "GTa",
+  } as Record<number, string>,
+
   phoneCodes: [
     { value: "+961", label: "+961 (Lebanon)" },
     { value: "+1", label: "+1 (USA/Canada)" },
