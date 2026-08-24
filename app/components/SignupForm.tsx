@@ -17,6 +17,7 @@ import { selectStyles } from "../styles/selectStyles";
 import toast from "react-hot-toast";
 import { entityConfig } from "../config/entity";
 import type { ProgramRole } from "../config/entity";
+import { OTHER_ALIGNMENT_ID } from "../constants/offices";
 
 type SignupFormProps = {
   role: ProgramRole;
@@ -71,6 +72,10 @@ const createInitialAdditionals = (): AdditionalUser => ({
   education: "",
   major: "",
   referee: "",
+  other_university: "",
+  other_major: "",
+  other_education: "",
+  other_language: "",
 });
 
 export default function SignupForm({
@@ -89,6 +94,7 @@ export default function SignupForm({
   const [universities, setUniversities] = useState<Allignements[]>([]);
   const [loadingUniversities, setLoadingUniversities] = useState(true);
   const [universityError, setUniversityError] = useState("");
+  const [isOtherUniversity, setIsOtherUniversity] = useState(false);
   const [formData, setFormData] = useState<User>(() => createInitialValues(role));
   const [additionalData, setAdditionalData] = useState<AdditionalUser>(() => createInitialAdditionals());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,9 +158,13 @@ export default function SignupForm({
       setFormData({ ...formData, [field]: e.target.value });
   };
 
-  const updateAdditional = (field: keyof AdditionalUser) =>
+  const updateAdditional = (field: keyof AdditionalUser, otherField?: keyof AdditionalUser) =>
     (e: SingleValue<Option>) => {
-      setAdditionalData({...additionalData, [field]: e?.value });
+      setAdditionalData((prev) => ({
+        ...prev,
+        [field]: e?.value ?? "",
+        ...(otherField ? { [otherField]: "" } : {}),
+      }));
   };
 
   const handleNationalityChange = (selected: MultiValue<Option>) => {
@@ -164,7 +174,11 @@ export default function SignupForm({
 
   const handleLanguageChange = (selected: readonly Option[] | null) => {
     const values = selected ? selected.map(o => o.value) : [];
-    setAdditionalData({...additionalData, languages: values});
+    setAdditionalData((prev) => ({
+      ...prev,
+      languages: values,
+      other_language: values.includes("other") ? prev.other_language : "",
+    }));
   };
 
   function validatePassword(password: string): PasswordValidation {
@@ -222,6 +236,7 @@ export default function SignupForm({
       // 1. Clear form
       setFormData(createInitialValues(role));
       setAdditionalData(createInitialAdditionals());
+      setIsOtherUniversity(false);
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
@@ -399,6 +414,19 @@ export default function SignupForm({
                     placeholder="Select the languages."
                     onChange={handleLanguageChange}
                   />
+
+                  {additionalData.languages.includes("other") && (
+                    <input
+                      name="otherLanguage"
+                      type="text"
+                      required
+                      placeholder="Enter the other language(s)"
+                      value={additionalData.other_language}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_language: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>
@@ -409,10 +437,14 @@ export default function SignupForm({
                     disabled={loadingUniversities}
                     onChange={(e) => {
                       const selectedOption = e.target.selectedOptions[0];
+                      const alignmentId = Number(selectedOption.dataset.alignmentId!);
+
+                      setIsOtherUniversity(alignmentId === OTHER_ALIGNMENT_ID);
+                      setAdditionalData((prev) => ({ ...prev, other_university: "" }));
 
                       setFormData((prev) => ({
                         ...prev,
-                        alignment_id: Number(selectedOption.dataset.alignmentId!),
+                        alignment_id: alignmentId,
                         lc: Number(selectedOption.dataset.lc),
                         lc_input: Number(selectedOption.dataset.lc),
                       }));
@@ -439,6 +471,19 @@ export default function SignupForm({
                   {universityError && (
                     <p className="error-text">{universityError}</p>
                   )}
+
+                  {isOtherUniversity && (
+                    <input
+                      name="otherUniversity"
+                      type="text"
+                      required
+                      placeholder="Enter your university name"
+                      value={additionalData.other_university}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_university: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>
@@ -447,9 +492,22 @@ export default function SignupForm({
                     styles={selectStyles}
                     options={educationLevelOptions}
                     placeholder="Select your level of education."
-                    onChange={updateAdditional("education")}
+                    onChange={updateAdditional("education", "other_education")}
                     isClearable
                   />
+
+                  {additionalData.education === "other" && (
+                    <input
+                      name="otherEducation"
+                      type="text"
+                      required
+                      placeholder="Enter your level of education"
+                      value={additionalData.other_education}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_education: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>
@@ -457,13 +515,26 @@ export default function SignupForm({
                   <CreatableSelect<Option, false, GroupBase<Option>>
                     styles={selectStyles}
                     options={majorOptions}
-                    onChange={updateAdditional("major")}
+                    onChange={updateAdditional("major", "other_major")}
                     placeholder="Select or type your major."
                     isClearable
                     formatCreateLabel={(inputValue) =>
                       `Add "${inputValue}" as a custom major`
                     }
                   />
+
+                  {additionalData.major === "other_major" && (
+                    <input
+                      name="otherMajor"
+                      type="text"
+                      required
+                      placeholder="Enter your major"
+                      value={additionalData.other_major}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_major: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>

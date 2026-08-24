@@ -17,9 +17,18 @@ export async function updateGoogleSheet(
   const fullName = `${user.first_name} ${user.last_name}`;
   const phone = `'${user.country_code}${user.phone}`;
   const timestamp = new Date().toISOString();
-  const selectedPrograms = user.selected_programs.join(",");
-  const languages = additional.languages.join(",");
-  const nationalities = additional.nationality.join(",");
+  const humanize = (value: string) => value.replace(/_/g, " ");
+  const selectedPrograms = user.selected_programs
+    .map((id) => entityConfig.programNames[id] || String(id))
+    .join(",");
+  const languages = additional.languages
+    .map((lang) => (lang === "other" ? additional.other_language : lang))
+    .filter(Boolean)
+    .join(",");
+  const nationalities = additional.nationality.map(humanize).join(",");
+  const university = additional.other_university || AllignmentMap[user.alignment_id] || "";
+  const major = additional.major === "other_major" ? additional.other_major : humanize(additional.major);
+  const education = additional.education === "other" ? additional.other_education : humanize(additional.education);
 
   const row = [
     timestamp,
@@ -33,9 +42,9 @@ export async function updateGoogleSheet(
     user.lc,
     LCMap[user.lc] || "",
     user.alignment_id,
-    AllignmentMap[user.alignment_id] || "",
-    additional.major,
-    additional.education,
+    university,
+    major,
+    education,
     selectedPrograms,
     user.referral_type,
     additional.referee
@@ -53,6 +62,7 @@ export async function updateGoogleSheet(
       },
       params: {
         valueInputOption: "USER_ENTERED",
+        insertDataOption: "INSERT_ROWS",
       },
     }
   );
