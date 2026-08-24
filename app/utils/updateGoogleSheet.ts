@@ -21,9 +21,14 @@ export async function updateGoogleSheet(
   const selectedPrograms = user.selected_programs
     .map((id) => entityConfig.programNames[id] || String(id))
     .join(",");
-  const languages = additional.languages.join(",");
+  const languages = additional.languages
+    .map((lang) => (lang === "other" ? additional.other_language : lang))
+    .filter(Boolean)
+    .join(",");
   const nationalities = additional.nationality.map(humanize).join(",");
   const university = additional.other_university || AllignmentMap[user.alignment_id] || "";
+  const major = additional.major === "other_major" ? additional.other_major : humanize(additional.major);
+  const education = additional.education === "other" ? additional.other_education : humanize(additional.education);
 
   const row = [
     timestamp,
@@ -38,8 +43,8 @@ export async function updateGoogleSheet(
     LCMap[user.lc] || "",
     user.alignment_id,
     university,
-    humanize(additional.major),
-    humanize(additional.education),
+    major,
+    education,
     selectedPrograms,
     user.referral_type,
     additional.referee

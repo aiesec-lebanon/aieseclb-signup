@@ -24,6 +24,9 @@ export interface AdditionalUser {
     major: string;
     referee: string;
     other_university: string;
+    other_major: string;
+    other_education: string;
+    other_language: string;
 }
 
 export default interface UserRequest {

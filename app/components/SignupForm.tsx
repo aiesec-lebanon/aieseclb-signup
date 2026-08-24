@@ -73,6 +73,9 @@ const createInitialAdditionals = (): AdditionalUser => ({
   major: "",
   referee: "",
   other_university: "",
+  other_major: "",
+  other_education: "",
+  other_language: "",
 });
 
 export default function SignupForm({
@@ -155,9 +158,13 @@ export default function SignupForm({
       setFormData({ ...formData, [field]: e.target.value });
   };
 
-  const updateAdditional = (field: keyof AdditionalUser) =>
+  const updateAdditional = (field: keyof AdditionalUser, otherField?: keyof AdditionalUser) =>
     (e: SingleValue<Option>) => {
-      setAdditionalData({...additionalData, [field]: e?.value });
+      setAdditionalData((prev) => ({
+        ...prev,
+        [field]: e?.value ?? "",
+        ...(otherField ? { [otherField]: "" } : {}),
+      }));
   };
 
   const handleNationalityChange = (selected: MultiValue<Option>) => {
@@ -167,7 +174,11 @@ export default function SignupForm({
 
   const handleLanguageChange = (selected: readonly Option[] | null) => {
     const values = selected ? selected.map(o => o.value) : [];
-    setAdditionalData({...additionalData, languages: values});
+    setAdditionalData((prev) => ({
+      ...prev,
+      languages: values,
+      other_language: values.includes("other") ? prev.other_language : "",
+    }));
   };
 
   function validatePassword(password: string): PasswordValidation {
@@ -403,6 +414,19 @@ export default function SignupForm({
                     placeholder="Select the languages."
                     onChange={handleLanguageChange}
                   />
+
+                  {additionalData.languages.includes("other") && (
+                    <input
+                      name="otherLanguage"
+                      type="text"
+                      required
+                      placeholder="Enter the other language(s)"
+                      value={additionalData.other_language}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_language: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>
@@ -468,9 +492,22 @@ export default function SignupForm({
                     styles={selectStyles}
                     options={educationLevelOptions}
                     placeholder="Select your level of education."
-                    onChange={updateAdditional("education")}
+                    onChange={updateAdditional("education", "other_education")}
                     isClearable
                   />
+
+                  {additionalData.education === "other" && (
+                    <input
+                      name="otherEducation"
+                      type="text"
+                      required
+                      placeholder="Enter your level of education"
+                      value={additionalData.other_education}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_education: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>
@@ -478,13 +515,26 @@ export default function SignupForm({
                   <CreatableSelect<Option, false, GroupBase<Option>>
                     styles={selectStyles}
                     options={majorOptions}
-                    onChange={updateAdditional("major")}
+                    onChange={updateAdditional("major", "other_major")}
                     placeholder="Select or type your major."
                     isClearable
                     formatCreateLabel={(inputValue) =>
                       `Add "${inputValue}" as a custom major`
                     }
                   />
+
+                  {additionalData.major === "other_major" && (
+                    <input
+                      name="otherMajor"
+                      type="text"
+                      required
+                      placeholder="Enter your major"
+                      value={additionalData.other_major}
+                      onChange={(e) => {
+                        setAdditionalData((prev) => ({ ...prev, other_major: e.target.value }));
+                      }}
+                    />
+                  )}
                 </label>
 
                 <label>
