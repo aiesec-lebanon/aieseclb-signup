@@ -31,8 +31,8 @@ export const entityConfig = {
 
   programNames: {
     7: "GV",
-    8: "GTe",
-    9: "GTa",
+    8: "GTa",
+    9: "GTe",
   } as Record<number, string>,
 
   phoneCodes: [
