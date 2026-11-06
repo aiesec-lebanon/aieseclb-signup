@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { entityConfig } from "../config/entity";
 import type { ProgramRole } from "../config/entity";
 import { OTHER_ALIGNMENT_ID } from "../constants/offices";
+import { COUNTRY_CODE_PATTERN, OTHER_PHONE_CODE } from "../constants/phone";
 
 type SignupFormProps = {
   role: ProgramRole;
@@ -46,6 +47,8 @@ type AllignementResponse = {
   label: string;
   alignments: Allignements[];
 };
+
+const allNationalityOptions = nationalityOptions.flatMap((group) => group.options);
 
 const createInitialValues = (role: ProgramRole): User => ({
   first_name: "",
@@ -95,6 +98,7 @@ export default function SignupForm({
   const [loadingUniversities, setLoadingUniversities] = useState(true);
   const [universityError, setUniversityError] = useState("");
   const [isOtherUniversity, setIsOtherUniversity] = useState(false);
+  const [isOtherPhoneCode, setIsOtherPhoneCode] = useState(false);
   const [formData, setFormData] = useState<User>(() => createInitialValues(role));
   const [additionalData, setAdditionalData] = useState<AdditionalUser>(() => createInitialAdditionals());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -237,6 +241,7 @@ export default function SignupForm({
       setFormData(createInitialValues(role));
       setAdditionalData(createInitialAdditionals());
       setIsOtherUniversity(false);
+      setIsOtherPhoneCode(false);
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
@@ -285,22 +290,22 @@ export default function SignupForm({
 
               <form className="signup-form" onSubmit={handleSubmit}>
                 <label>
-                  First Name
+                  <span className="required-label">First Name</span>
                   <input name="first_name" type="text" required onChange={updateField("first_name")} />
                 </label>
 
                 <label>
-                  Last Name
+                  <span className="required-label">Last Name</span>
                   <input name="last_name" type="text" required onChange={updateField("last_name")} />
                 </label>
 
                 <label>
-                  Email Address
+                  <span className="required-label">Email Address</span>
                   <input name="email" type="email" required onChange={updateField("email")} />
                 </label>
 
                 <label>
-                  Password
+                  <span className="required-label">Password</span>
                   <input
                     type="password"
                     required
@@ -345,7 +350,7 @@ export default function SignupForm({
 
 
                 <label>
-                  Confirm Password
+                  <span className="required-label">Confirm Password</span>
                   <input
                     type="password"
                     required
@@ -358,19 +363,38 @@ export default function SignupForm({
                 </label>
 
                 <label>
-                  Phone Number
+                  <span className="required-label">Phone Number</span>
                   <div className="phone-row">
                     <select name="phoneCode" defaultValue={entityConfig.defaultPhoneCode} required
                     onChange={(e) => {
-                      setFormData({ ...formData, country_code: e.target.value })
+                      const isOther = e.target.value === OTHER_PHONE_CODE;
+
+                      setIsOtherPhoneCode(isOther);
+                      setFormData({ ...formData, country_code: isOther ? "" : e.target.value });
                     }}>
                       {entityConfig.phoneCodes.map((phoneCode) => (
                         <option key={phoneCode.value} value={phoneCode.value}>
                           {phoneCode.label}
                         </option>
                       ))}
-                      <option value="other">Other…</option>
+                      <option value={OTHER_PHONE_CODE}>Other…</option>
                     </select>
+
+                    {isOtherPhoneCode && (
+                      <input
+                        name="otherCountryCode"
+                        className="phone-code-input"
+                        type="tel"
+                        required
+                        aria-label="Country code"
+                        placeholder="+234"
+                        pattern={COUNTRY_CODE_PATTERN}
+                        title="Enter a + followed by 1 to 4 digits, for example +234"
+                        maxLength={5}
+                        value={formData.country_code}
+                        onChange={updateField("country_code")}
+                      />
+                    )}
 
                     <input
                       name="phoneNumber"
@@ -383,7 +407,7 @@ export default function SignupForm({
                 </label>              
 
                 <label>
-                  Date of Birth
+                  <span className="required-label">Date of Birth</span>
                   <input 
                     name="dob" 
                     type="date" 
@@ -395,20 +419,25 @@ export default function SignupForm({
                 </label>
 
                 <label>
-                  Nationality
+                  <span className="required-label">Nationality</span>
                   <Select<Option, true, GroupBase<Option>>
                     isMulti
+                    required
                     styles={selectStyles}
                     options={nationalityOptions}
+                    value={allNationalityOptions.filter((option) =>
+                      additionalData.nationality.includes(option.value)
+                    )}
                     onChange={handleNationalityChange}
                     placeholder="Select your nationalities."
                   />
                 </label>
                 
                 <label>
-                  What languages do you speak?
+                  <span className="required-label">What languages do you speak?</span>
                   <Select
                     isMulti
+                    required
                     styles={selectStyles}
                     options={languageOptions}
                     placeholder="Select the languages."
@@ -430,7 +459,7 @@ export default function SignupForm({
                 </label>
 
                 <label>
-                  University / Institute
+                  <span className="required-label">University / Institute</span>
                   <select
                     required
                     defaultValue=""
@@ -487,8 +516,9 @@ export default function SignupForm({
                 </label>
 
                 <label>
-                  Level of Education
+                  <span className="required-label">Level of Education</span>
                   <Select<Option, false>
+                    required
                     styles={selectStyles}
                     options={educationLevelOptions}
                     placeholder="Select your level of education."
@@ -511,8 +541,9 @@ export default function SignupForm({
                 </label>
 
                 <label>
-                  Major
+                  <span className="required-label">Major</span>
                   <CreatableSelect<Option, false, GroupBase<Option>>
+                    required
                     styles={selectStyles}
                     options={majorOptions}
                     onChange={updateAdditional("major", "other_major")}
@@ -538,7 +569,7 @@ export default function SignupForm({
                 </label>
 
                 <label>
-                  Where did you first hear about us?
+                  <span className="required-label">Where did you first hear about us?</span>
                   <select required defaultValue=""
                     onChange={(e) => {
                       setFormData({ ...formData, referral_type: e.target.value });
@@ -597,7 +628,7 @@ export default function SignupForm({
                       setFormData({ ...formData, allow_term_and_conditions: e.target.checked? 1 : 0});
                     }}
                   />
-                  <span>
+                  <span className="required-label">
                     By signing up, I agree to the{" "}
                     <a
                       href={entityConfig.privacyPolicyUrl}

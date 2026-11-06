@@ -22,5 +22,6 @@ export const languageOptions = [
   { value: "portuguese", label: "Portuguese" },
   { value: "russian", label: "Russian" },
 
-  { value: "other", label: "Other" }
+  { value: "other", label: "Other" },
+  { value: "prefer_not_to_say", label: "Prefer not to say" }
 ];

@@ -17,12 +17,12 @@ export const entityConfig = {
   expaCountryId: 182,
   defaultPhoneCode: "+961",
   defaultPhonePlaceholder: "03 123 456",
-  defaultNationalities: ["lebanese"],
+  defaultNationalities: [] as string[],
 
   productIds: {
     volunteer: 7,
-    teacher: 8,
-    talent: 9,
+    teacher: 9,
+    talent: 8,
   },
 
   googleSheet: {

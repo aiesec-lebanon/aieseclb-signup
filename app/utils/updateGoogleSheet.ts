@@ -22,7 +22,7 @@ export async function updateGoogleSheet(
     .map((id) => entityConfig.programNames[id] || String(id))
     .join(",");
   const languages = additional.languages
-    .map((lang) => (lang === "other" ? additional.other_language : lang))
+    .map((lang) => (lang === "other" ? additional.other_language : humanize(lang)))
     .filter(Boolean)
     .join(",");
   const nationalities = additional.nationality.map(humanize).join(",");
