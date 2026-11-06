@@ -17,5 +17,6 @@ export const educationLevelOptions: Option[] = [
   { value: "phd_ongoing", label: "PhD / Doctorate (Currently Studying)" },
   { value: "phd_completed", label: "PhD / Doctorate (Completed)" },
 
-  { value: "other", label: "Other" }
+  { value: "other", label: "Other" },
+  { value: "prefer_not_to_say", label: "Prefer not to say" }
 ];

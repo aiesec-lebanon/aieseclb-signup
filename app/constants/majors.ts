@@ -75,7 +75,8 @@ export const majorOptions: GroupBase<Option>[] = [
     label: "Other",
     options: [
       { value: "undeclared", label: "Undeclared / Not Yet Decided" },
-      { value: "other_major", label: "Other" }
+      { value: "other_major", label: "Other" },
+      { value: "prefer_not_to_say", label: "Prefer not to say" }
     ]
   }
 ];

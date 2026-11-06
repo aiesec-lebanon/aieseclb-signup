@@ -86,7 +86,7 @@ Update:
 - `gisMcName`: MC name passed to the GIS alignment endpoint.
 - `expaCountryId`: EXPA country ID sent during signup.
 - `defaultPhoneCode` and `defaultPhonePlaceholder`: default phone field behavior.
-- `defaultNationalities`: default selected nationality values.
+- `defaultNationalities`: nationality values preselected in the form. Nationality is required, so leave this empty to make every user choose one.
 - `productIds`: EXPA product IDs for Global Volunteer, Global Teacher, and Global Talent.
 - `googleSheet.appendRange`: sheet tab and columns used by the append API.
 - `phoneCodes`: country calling codes shown in the form.

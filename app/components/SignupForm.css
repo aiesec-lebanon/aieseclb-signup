@@ -210,3 +210,30 @@
 .rule-fail {
   color: #d32f2f; /* red */
 }
+
+/* required field marker */
+.required-label::after {
+  content: "*";
+  margin-left: 2px;
+  color: #d32f2f;
+  font-weight: 700;
+}
+
+/* labels sit on a dark blurred background on mobile */
+@media (max-width: 600px) {
+  .required-label::after {
+    color: #ff8a80;
+  }
+}
+
+/* custom country code, shown when "Other…" is selected */
+.phone-code-input {
+  width: 72px;
+}
+
+@media (max-width: 600px) {
+  .phone-row input.phone-code-input {
+    flex: 0 0 64px;
+    width: 64px;
+  }
+}
