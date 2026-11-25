@@ -7,6 +7,17 @@ import { getGoogleAccessToken } from "./googleAuth";
 import { LCMap, AllignmentMap } from "../constants/offices";
 import { entityConfig } from "../config/entity";
 
+// Under USER_ENTERED, a cell starting with one of these characters is parsed as a
+// formula (e.g. =IMPORTXML(...) could send sheet contents to another server).
+const FORMULA_TRIGGER = /^[\s=+\-@]/;
+
+// A leading apostrophe makes Sheets store the value as plain text; it is not displayed.
+function toSafeCell(value: unknown): string | number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const text = value == null ? "" : String(value);
+  return FORMULA_TRIGGER.test(text) ? `'${text}` : text;
+}
+
 export async function updateGoogleSheet(
   user: User,
   additional: AdditionalUser,
@@ -15,7 +26,8 @@ export async function updateGoogleSheet(
   const accessToken = await getGoogleAccessToken();
 
   const fullName = `${user.first_name} ${user.last_name}`;
-  const phone = `'${user.country_code}${user.phone}`;
+  // Starts with "+", so toSafeCell keeps it as text.
+  const phone = `${user.country_code}${user.phone}`;
   const timestamp = new Date().toISOString();
   const humanize = (value: string) => value.replace(/_/g, " ");
   const selectedPrograms = user.selected_programs
@@ -48,7 +60,7 @@ export async function updateGoogleSheet(
     selectedPrograms,
     user.referral_type,
     additional.referee
-  ];
+  ].map(toSafeCell);
 
   await axios.post(
     `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/${encodeURIComponent(entityConfig.googleSheet.appendRange)}:append`,

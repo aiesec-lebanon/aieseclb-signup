@@ -63,7 +63,7 @@ const createInitialValues = (role: ProgramRole): User => ({
   referral_type: "",
   alignment_id: 0,
   allow_phone_communication: 0,
-  allow_email_communication: 1,
+  allow_email_communication: 0,
   allow_term_and_conditions: 0,
   selected_programs: [entityConfig.productIds[role]],
 });
@@ -102,6 +102,7 @@ export default function SignupForm({
   const [formData, setFormData] = useState<User>(() => createInitialValues(role));
   const [additionalData, setAdditionalData] = useState<AdditionalUser>(() => createInitialAdditionals());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const API_ENDPOINT = process.env.NEXT_PUBLIC_GIS_API || "";
   const router = useRouter();
 
@@ -234,12 +235,14 @@ export default function SignupForm({
           ...formData,
           password
         },
-        additional: additionalData
+        additional: additionalData,
+        website: honeypot
       });
 
       // 1. Clear form
       setFormData(createInitialValues(role));
       setAdditionalData(createInitialAdditionals());
+      setHoneypot("");
       setIsOtherUniversity(false);
       setIsOtherPhoneCode(false);
       setPassword("");
@@ -611,12 +614,50 @@ export default function SignupForm({
                   />
                 </label>
 
+                {/* Hidden from people; bots that fill every field reveal themselves. */}
+                <div className="signup-hp" aria-hidden="true">
+                  <label>
+                    Website
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </label>
+                </div>
+
+                <p className="signup-consent-note">
+                  Optional. You can withdraw your consent at any time.
+                </p>
+
                 <label className="signup-checkbox">
-                  <input type="checkbox" onChange={(e) => {
-                    setFormData({ ...formData, allow_phone_communication: e.target.checked? 1 : 0});
-                  }} />
+                  <input
+                    type="checkbox"
+                    checked={formData.allow_email_communication === 1}
+                    onChange={(e) => {
+                      const allow_email_communication = e.target.checked ? 1 : 0;
+                      setFormData((prev) => ({ ...prev, allow_email_communication }));
+                    }}
+                  />
                   <span>
-                    I agree to receiving emails or messages from AIESEC about
+                    Email me about AIESEC opportunities and programs.
+                  </span>
+                </label>
+
+                <label className="signup-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={formData.allow_phone_communication === 1}
+                    onChange={(e) => {
+                      const allow_phone_communication = e.target.checked ? 1 : 0;
+                      setFormData((prev) => ({ ...prev, allow_phone_communication }));
+                    }}
+                  />
+                  <span>
+                    Contact me by phone, SMS or WhatsApp about AIESEC
                     opportunities and programs.
                   </span>
                 </label>

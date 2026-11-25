@@ -5,6 +5,13 @@ import RegisterAPIError from "@/app/utils/RegisterAPIError";
 import { updateGoogleSheet } from "@/app/utils/updateGoogleSheet";
 import { OTHER_ALIGNMENT_ID } from "@/app/constants/offices";
 import { COUNTRY_CODE_PATTERN } from "@/app/constants/phone";
+import { describeError } from "@/app/utils/safeError";
+import {
+  consumeSignupQuota,
+  getClientIp,
+  isHoneypotFilled,
+  isSameOriginRequest,
+} from "@/app/utils/botProtection";
 
 interface ExpaSignupResponse {
     person_id: number;
@@ -20,6 +27,8 @@ type ExpaErrorResponse = {
 const countryCodeRegex = new RegExp(`^${COUNTRY_CODE_PATTERN}$`);
 const isEmptyList = (value: unknown) => !Array.isArray(value) || value.length === 0;
 const isBlank = (value: unknown) => typeof value !== "string" || value.trim() === "";
+// Marketing consent is opt-in: anything other than an explicit 1 means no.
+const toConsentFlag = (value: unknown) => (Number(value) === 1 ? 1 : 0);
 
 function findMissingField(user: User, additional: Partial<AdditionalUser>): string | null {
   const { nationality, languages, education, major } = additional;
@@ -39,10 +48,18 @@ function findMissingField(user: User, additional: Partial<AdditionalUser>): stri
 }
 
 export async function POST(req: NextRequest) {
+  if (!isSameOriginRequest(req)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const userInfo: User = body.user;
     const additionalInfo: AdditionalUser = body.additional
+
+    if (isHoneypotFilled(body.website)) {
+      return NextResponse.json({ error: "Signup failed" }, { status: 400 });
+    }
 
     if (!userInfo) {
       return NextResponse.json(
@@ -60,6 +77,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    userInfo.allow_email_communication = toConsentFlag(userInfo.allow_email_communication);
+    userInfo.allow_phone_communication = toConsentFlag(userInfo.allow_phone_communication);
+
+    // Counted only once the form is valid, so people fixing typos are not blocked.
+    const quota = consumeSignupQuota(getClientIp(req));
+    if (!quota.allowed) {
+      return NextResponse.json(
+        { error: "Too many sign-up attempts from your network. Please try again in a few minutes." },
+        { status: 429, headers: { "Retry-After": String(quota.retryAfterSeconds) } }
+      );
+    }
+
     // 1. Create EXPA signup
     const expaRes = await ExpaSignup(userInfo);
 
@@ -67,7 +96,7 @@ export async function POST(req: NextRequest) {
     try {
       await updateGoogleSheet(userInfo, additionalInfo, expaRes.person_id);
     } catch (sheetErr) {
-      console.error("Google Sheet update failed:", sheetErr);
+      console.error("Google Sheet update failed:", describeError(sheetErr));
       // intentionally NOT failing the request
     }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { entityConfig } from "./config/entity";
@@ -15,17 +16,18 @@ export const metadata: Metadata = {
   }
 };
 
+// Downloaded at build time and served from our own domain, so visitors'
+// browsers never contact Google Fonts.
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+  display: "swap",
+  variable: "--font-lato",
+});
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        {/* Google Lato font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-
+    <html lang="en" className={lato.variable}>
       <body>
         <div
           className="navbar-wrapper"
