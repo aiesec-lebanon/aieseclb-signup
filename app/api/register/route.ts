@@ -13,6 +13,10 @@ import {
   isSameOriginRequest,
 } from "@/app/utils/botProtection";
 
+// Leaves room for the sheet retries (capped at about 8 s). Within the Vercel Hobby limit
+// (60 s maximum without Fluid compute, 300 s with it).
+export const maxDuration = 30;
+
 interface ExpaSignupResponse {
     person_id: number;
 }
@@ -96,7 +100,9 @@ export async function POST(req: NextRequest) {
     try {
       await updateGoogleSheet(userInfo, additionalInfo, expaRes.person_id);
     } catch (sheetErr) {
-      console.error("Google Sheet update failed:", describeError(sheetErr));
+      // The EXPA person ID is enough to find the person in EXPA and re-add the row;
+      // never log the row itself.
+      console.error("Google Sheet update failed:", { personId: expaRes.person_id, ...describeError(sheetErr) });
       // intentionally NOT failing the request
     }
 

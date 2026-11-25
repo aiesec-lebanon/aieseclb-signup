@@ -4,7 +4,7 @@
 import axios from "axios";
 import * as jwt from "jsonwebtoken";
 
-export async function getGoogleAccessToken(): Promise<string> {
+export async function getGoogleAccessToken(timeoutMs?: number): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
 
   const payload = {
@@ -31,6 +31,7 @@ export async function getGoogleAccessToken(): Promise<string> {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
+      timeout: timeoutMs,
     }
   );
 

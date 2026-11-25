@@ -6,6 +6,26 @@ import { AdditionalUser, User } from "@/app/types/userType";
 import { getGoogleAccessToken } from "./googleAuth";
 import { LCMap, AllignmentMap } from "../constants/offices";
 import { entityConfig } from "../config/entity";
+import { describeError } from "./safeError";
+
+// Up to 3 attempts. The whole sheet step stays within SHEET_TIME_BUDGET_MS so the
+// sign-up request finishes well inside the Vercel function time limit.
+const RETRY_DELAYS_MS = [500, 1500];
+const REQUEST_TIMEOUT_MS = 4000;
+const SHEET_TIME_BUDGET_MS = 8000;
+// Do not start another attempt with less time than this left.
+const MIN_ATTEMPT_MS = 1000;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Retry Google rate limits (429), Google-side errors (5xx) and network failures or timeouts.
+// A request that timed out may still have been written, so a retry can occasionally
+// produce a duplicate row (same EXPA person ID); that is preferable to losing the row.
+function isRetryable(err: unknown): boolean {
+  if (!axios.isAxiosError(err)) return false;
+  const status = err.response?.status;
+  return status === undefined || status === 429 || status >= 500;
+}
 
 // Under USER_ENTERED, a cell starting with one of these characters is parsed as a
 // formula (e.g. =IMPORTXML(...) could send sheet contents to another server).
@@ -23,8 +43,6 @@ export async function updateGoogleSheet(
   additional: AdditionalUser,
   personId: number
 ) {
-  const accessToken = await getGoogleAccessToken();
-
   const fullName = `${user.first_name} ${user.last_name}`;
   // Starts with "+", so toSafeCell keeps it as text.
   const phone = `${user.country_code}${user.phone}`;
@@ -62,6 +80,31 @@ export async function updateGoogleSheet(
     additional.referee
   ].map(toSafeCell);
 
+  const deadline = Date.now() + SHEET_TIME_BUDGET_MS;
+
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await appendRow(row, deadline);
+      return;
+    } catch (err) {
+      const delay = RETRY_DELAYS_MS[attempt - 1];
+      const canRetry =
+        delay !== undefined &&
+        isRetryable(err) &&
+        Date.now() + delay + MIN_ATTEMPT_MS <= deadline;
+
+      if (!canRetry) throw err;
+
+      console.warn("Google Sheet append failed, retrying:", { personId, attempt, ...describeError(err) });
+      await sleep(delay);
+    }
+  }
+}
+
+async function appendRow(row: (string | number)[], deadline: number) {
+  const timeLeft = () => Math.max(1, Math.min(REQUEST_TIMEOUT_MS, deadline - Date.now()));
+  const accessToken = await getGoogleAccessToken(timeLeft());
+
   await axios.post(
     `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/${encodeURIComponent(entityConfig.googleSheet.appendRange)}:append`,
     {
@@ -76,6 +119,7 @@ export async function updateGoogleSheet(
         valueInputOption: "USER_ENTERED",
         insertDataOption: "INSERT_ROWS",
       },
+      timeout: timeLeft(),
     }
   );
 }
